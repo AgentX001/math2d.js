@@ -35,18 +35,29 @@ Number.prototype.toRad = function() {
  * @param {number} x Координата X
  * @param {number} y Координата Y
  */
-var Point = function(x, y) {
-    this.x = x;
-    this.y = y;
+var Point = function(arg0, arg1) {
+    if (typeof arg0 == "number" && typeof arg1 == "number") {
+        this.x = arg0;
+        this.y = arg1;
+    } else if (arg0 instanceof Point) {
+        this.x = arg0.x;
+        this.y = arg0.y;        
+    }
 
     /**
      * Складывает координыты точек.
      * 
      * @param {Point} p То что прибавляем
      */
-    this.add = function(p) {
-        this.x += p.x;
-        this.y += p.y;
+    this.add = function(object) {
+        if (object instanceof Point) {
+            this.x += object.x;
+            this.y += object.y;
+        } else if (object instanceof Vector) {
+            this.add(object.getEndPoint());
+        } else {
+            throw new Error("Uncorrect arguments");
+        }
     }
 
     /**
@@ -55,8 +66,14 @@ var Point = function(x, y) {
      * @param {Point} p То что вычитаем
      */
     this.sub = function(p) {
-        this.x -= p.x;
-        this.y -= p.y;
+        if (object instanceof Point) {
+            this.x -= object.x;
+            this.y -= object.y;
+        } else if (object instanceof Vector) {
+            this.sub(object.getEndPoint());
+        } else {
+            throw new Error("Uncorrect arguments");
+        }
     }
 
     /**
@@ -84,15 +101,40 @@ var Point = function(x, y) {
         rad += (rad < 0) ? rad360 : 0;
         return rad;
     }
+}
 
-    /**
-     * Вычисляет координаты точки, которая являлась бы вершиной заданного вектора.
-     * 
-     * @param {number} len Длина вектора
-     * @param {number} dir Направление вектора, заданное в радианах
-     */
-    this.setLenDir = function(len, dir) {
-        this.x = len * Math.cos(dir);
-        this.y = len * Math.sin(dir)
+var Vector = function(arg0, arg1) {
+    if (typeof arg0 == "number" && typeof arg1 == "number") {
+        this.length = arg0;
+        this.direction = arg1;
+    } else if (arg0 instanceof Point && arg1 instanceof Point) {
+        this.length = arg0.distanceTo(arg1);
+        this.direction = arg0.directionTo(arg1);
+    } else if (arg0 instanceof Vector) {
+        this.length = arg0.length;
+        this.direction = arg0.direction;        
     }
+
+    this.getEndPoint = function() {
+        return new Point(this.length * Math.cos(this.direction), this.length * Math.sin(this.direction));
+    }
+
+    this.multi = function(k) {
+        this.length *= k;
+    }
+}
+
+var Polygon = function(vertices) {
+    if (typeof vertices != "object") {
+        throw new Error("Uncorrect arguments");
+    }
+    
+    for (let i = 0; i < vertices.length; i++) {
+        if (!(vertices[i] instanceof Point)) {
+            throw new Error("Uncorrect arguments");
+        }
+
+    }
+
+    this.vertices = vertices;
 }
