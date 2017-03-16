@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Тестирование с помощью QUnit</title>
+        <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.2.0.css">
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+
+        <script src="../Source/utils.js"></script>
+        <script src="../Source/point.js"></script>
+        <script src="../Source/vector.js"></script>
+
+        <script src="https://code.jquery.com/qunit/qunit-2.2.0.js"></script>
+
+        <script>
+            QUnit.test( "Тесты функционала добавленного к Number", function(assert) {
+                assert.equal((Math.PI).toDeg(), 180);
+                assert.equal((Math.PI * 2).toDeg(), 0);
+                assert.equal((Math.PI * 4).toDeg(), 0);
+                assert.equal((-Math.PI / 2).toDeg(), 270);
+                assert.equal((-Math.PI * 4).toDeg(), 0);
+                assert.equal((Math.PI / 2).toDeg(), 90);
+
+                assert.equal((180).toRad(), Math.PI);
+                assert.equal((360).toRad(), 0);
+                assert.equal((-360).toRad(), 0);
+                assert.equal((-180).toRad(), Math.PI);
+                assert.equal((-360 - 90).toRad(), 3 * Math.PI / 2);
+                assert.equal((90).toRad(), Math.PI / 2);
+            });
+
+            QUnit.test( "Тестирование Point", function(assert) {
+                assert.ok(new Point(1,1));
+                assert.throws(function() {
+                    new Point(1,null)
+                });
+                assert.throws(function() {
+                    new Point(NaN,0)
+                });
+
+                let a = new Point(9, 7);
+                assert.equal(a.x + a.y, 16);
+
+                a.x = 5;
+                a.y = 4;
+                assert.equal(a.x + a.y, 9);
+
+                let b = new Point(6, 4);
+                assert.equal(a.distanceTo(b), 1);
+
+                let c = new Point(5, 6);
+                assert.equal(a.distanceTo(c), 2);
+
+                assert.equal(a.directionTo(b), 0);
+                assert.equal(a.directionTo(c), (90).toRad());
+
+                let d = a.copy();
+                assert.notEqual(a, d);
+                assert.equal(a.x, d.x);
+                assert.equal(a.y, d.y);
+                assert.equal(a.directionTo(d), 0);
+                assert.equal(a.directionTo(d), 0);
+
+                a.add(b);
+                a.sub(c);
+                assert.equal(a.x, 6);
+                assert.equal(a.y, 2);
+
+                let e = new Point(10, 0);
+                e.rotate(Math.PI, new Point(5, 0));
+                assert.equal(Math.round(e.x), 0);
+            });
+
+            QUnit.test( "Тестирование Vector", function(assert) {
+                assert.ok(new Vector(1,1));
+                assert.throws(function() {
+                    new Vector(1,null)
+                });
+                assert.throws(function() {
+                    new Vector(NaN,0)
+                });
+
+                let a = new Vector(1, 0);
+                assert.equal((a.endPoint).x, 1);
+                assert.equal((a.endPoint).y, 0);
+
+                a.direction = (180).toRad();
+                assert.equal((a.endPoint).x, -1);
+
+                a.direction = (90).toRad();
+                a.length = 2;
+                assert.equal((a.endPoint).y, 2);
+
+                a.direction = (45).toRad();
+                assert.equal((a.endPoint).x, Math.sqrt(2));
+
+                b = a.copy();
+                assert.notEqual(a, b);
+
+                let c = new Vector(10, 0);
+                c.multi(2);
+                assert.equal(c.endPoint.x, 20);
+
+                c.rotate((90).toRad());
+                assert.equal(Math.round(c.direction), Math.round((90).toRad()));
+            });
+
+            QUnit.test( "Тестирование совместной работы Point и Vector", function(assert) {
+                let point = new Point(10,10);
+                let vector = new Vector(2, (45).toRad());
+                point.addVector(vector);
+                assert.equal(point.x, 10 + Math.sqrt(2));
+                assert.equal(point.y, 10 + Math.sqrt(2));
+                point.subVector(vector);
+                assert.equal(point.x + point.y, 20);
+
+                assert.throws(function() {
+                    let point = new Point(10,10);
+                    let vector = new Vector(2, (45).toRad());
+                    point.addVector(point);
+                });
+
+                assert.throws(function() {
+                    let point = new Point(10,10);
+                    let vector = new Vector(2, (45).toRad());
+                    point.add(vector);
+                });
+
+                let a = new Point(10,10);
+                let b = new Point(20,20);
+
+                let v = Vector.fromPoints(a, b);
+                assert.equal(v.length, 10 * Math.sqrt(2));
+                assert.equal(v.direction, (45).toRad());
+            });
+        </script>
+    </body>
+</html>
