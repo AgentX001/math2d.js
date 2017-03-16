@@ -65,7 +65,7 @@ var Point = function(arg0, arg1) {
      * 
      * @param {Point} p То что вычитаем
      */
-    this.sub = function(p) {
+    this.sub = function(object) {
         if (object instanceof Point) {
             this.x -= object.x;
             this.y -= object.y;
@@ -137,4 +137,9 @@ var Polygon = function(vertices) {
     }
 
     this.vertices = vertices;
+}
+
+var Size = function(width, height) {
+    this.width = width;
+    this.height = height;
 }
